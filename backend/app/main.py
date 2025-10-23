@@ -924,15 +924,15 @@ async def cleanup_cache():
     try:
         cache_manager.cleanup_old_cache()
         stats = cache_manager.get_cache_stats()
-            return {
-                "success": True,
+        return {
+            "success": True,
             "message": "Cache cleanup completed",
             "stats": stats
         }
     except Exception as e:
         logger.error(f"Error cleaning up cache: {e}")
-            return {
-                "success": False,
+        return {
+            "success": False,
             "error": str(e)
         }
 
