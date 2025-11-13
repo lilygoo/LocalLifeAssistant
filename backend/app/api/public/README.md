@@ -1,46 +1,106 @@
 # Public Chat API Documentation
 
-## 概述
+> **For External Developers**: This API allows you to integrate intelligent local event discovery into your applications. The API provides conversational event recommendations powered by AI.
+
+## 📑 Table of Contents
+
+- [Quick Start](#-quick-start)
+- [Overview](#-概述--overview)
+- [Authentication](#-认证--authentication)
+- [Rate Limiting](#-速率限制--rate-limiting)
+- [API Endpoints](#-api端点--api-endpoints)
+- [Code Examples](#代码示例)
+- [Best Practices](#最佳实践)
+- [Configuration](#环境变量配置)
+- [Additional Resources](#-更多资源--additional-resources)
+- [Production Deployment](#公网访问配置)
+
+## 🚀 Quick Start
+
+**Get started in 3 steps:**
+
+1. **Get a Firebase Token** - Authenticate with Firebase Auth
+2. **Make your first request** - Send a POST request to `/api/public/chat`
+3. **Handle the response** - Receive AI-powered event recommendations
+
+**Example (cURL):**
+```bash
+curl -X POST https://lily.locomoco.top/api/public/chat \
+  -H "Authorization: Bearer YOUR_FIREBASE_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Find music concerts in New York this weekend"}'
+```
+
+> 📝 **Note**: Production domain: `https://lily.locomoco.top`. For development, use `http://localhost:8000`.
+
+### ✨ What You Get
+
+This API provides:
+- **🤖 AI-Powered Search**: Natural language understanding for event queries
+- **📍 Location Intelligence**: Automatic location extraction and event matching
+- **💬 Conversational Context**: Maintains conversation history for follow-up queries
+- **🎯 Smart Recommendations**: Relevance-scored event recommendations
+- **⚡ Cached Results**: Fast responses with intelligent caching
+- **🔒 Secure**: Firebase authentication and rate limiting
+
+## 概述 / Overview
 
 Public Chat API 是一个RESTful API，提供智能本地生活助手服务。该API使用Firebase认证和速率限制来保护服务。
 
-### 环境URL
+**English**: Public Chat API is a RESTful API that provides intelligent local life assistant services. The API uses Firebase authentication and rate limiting to protect the service.
 
-- **开发环境**: `http://localhost:8000`
-- **生产环境**: `https://your-domain.com` (请替换为实际域名)
+### 环境URL / Environment URLs
+
+- **开发环境 / Development**: `http://localhost:8000`
+- **生产环境 / Production**: `https://lily.locomoco.top`
 - **API Prefix**: `/api/public`
 
-**完整API端点**:
-- 开发: `http://localhost:8000/api/public/chat`
-- 生产: `https://your-domain.com/api/public/chat`
+**完整API端点 / Full API Endpoints**:
+- 开发 / Development: `http://localhost:8000/api/public/chat`
+- 生产 / Production: `https://lily.locomoco.top/api/public/chat`
 
-> **注意**: 生产环境URL需要通过环境变量 `DOMAIN_NAME` 配置。请将文档中的 `your-domain.com` 替换为您的实际域名。
+> ✅ **生产环境已配置 / Production Configured**: 生产环境URL为 `https://lily.locomoco.top`
+> 
+> **English**: Production URL is configured as `https://lily.locomoco.top`
 
-## 认证
+## 🔑 认证 / Authentication
 
-所有API请求都需要Firebase认证令牌。
+所有API请求都需要Firebase认证令牌。  
+**English**: All API requests require Firebase authentication tokens.
 
-### 获取Firebase Token
+### 获取Firebase Token / Getting Firebase Token
 
-1. 在客户端使用Firebase Auth SDK登录
-2. 获取ID Token: `await user.getIdToken()`
-3. 在请求头中包含token: `Authorization: Bearer <token>`
+1. 在客户端使用Firebase Auth SDK登录 / Use Firebase Auth SDK in your client to sign in
+2. 获取ID Token: `await user.getIdToken()` / Get ID Token: `await user.getIdToken()`
+3. 在请求头中包含token: `Authorization: Bearer <token>` / Include token in request header: `Authorization: Bearer <token>`
 
-### 请求头格式
+**JavaScript Example:**
+```javascript
+import { getAuth, signInAnonymously } from 'firebase/auth';
+
+const auth = getAuth();
+const userCredential = await signInAnonymously(auth);
+const token = await userCredential.user.getIdToken();
+```
+
+### 请求头格式 / Request Headers
 
 ```
 Authorization: Bearer <firebase_token>
 Content-Type: application/json
 ```
 
-## 速率限制
+> 💡 **Tip**: Firebase tokens typically expire after 1 hour. Implement token refresh logic in your application.
 
-API实施固定窗口计数器速率限制：
+## ⚡ 速率限制 / Rate Limiting
 
-- **限制**: 10 请求/60秒 (默认，可通过环境变量配置)
-- **配置变量**: 
-  - `API_RATE_LIMIT_MAX`: 最大请求数 (默认: 10)
-  - `API_RATE_LIMIT_WINDOW`: 时间窗口秒数 (默认: 60)
+API实施固定窗口计数器速率限制。  
+**English**: The API implements fixed window counter rate limiting.
+
+- **限制 / Limit**: 10 请求/60秒 (默认，可通过环境变量配置) / 10 requests per 60 seconds (default, configurable via environment variables)
+- **配置变量 / Configuration Variables**: 
+  - `API_RATE_LIMIT_MAX`: 最大请求数 (默认: 10) / Maximum requests (default: 10)
+  - `API_RATE_LIMIT_WINDOW`: 时间窗口秒数 (默认: 60) / Time window in seconds (default: 60)
 
 ### 速率限制响应头
 
@@ -62,11 +122,19 @@ API实施固定窗口计数器速率限制：
 }
 ```
 
-## API端点
+## 📡 API端点 / API Endpoints
 
 ### POST /api/public/chat
 
-发送聊天消息并获取事件推荐。
+发送聊天消息并获取事件推荐。  
+**English**: Send a chat message and receive event recommendations.
+
+**What this endpoint does:**
+- Accepts natural language queries (e.g., "Find jazz concerts this weekend")
+- Extracts user preferences (location, date, event type)
+- Searches for matching events using AI-powered semantic search
+- Returns formatted recommendations with event details
+- Maintains conversation context for follow-up queries
 
 #### 请求
 
@@ -143,20 +211,83 @@ Content-Type: application/json
 }
 ```
 
-**响应字段说明:**
+**响应字段说明 / Response Fields:**
 
-| 字段 | 类型 | 说明 |
+| 字段 / Field | 类型 / Type | 说明 / Description |
 |------|------|------|
-| `message` | string | AI助手的回复消息 |
-| `recommendations` | array | 事件推荐列表 |
-| `llm_provider_used` | string | 使用的LLM提供商 |
-| `cache_used` | boolean | 是否使用了缓存 |
-| `cache_age_hours` | number\|null | 缓存年龄（小时） |
-| `extracted_preferences` | object\|null | 提取的用户偏好 |
-| `extraction_summary` | string\|null | 偏好摘要（格式化） |
-| `usage_stats` | object\|null | 使用统计（匿名用户） |
-| `trial_exceeded` | boolean | 是否超过试用限制 |
-| `conversation_id` | string | 对话ID（用于继续对话） |
+| `message` | string | AI助手的回复消息 / AI assistant's response message |
+| `recommendations` | array | 事件推荐列表 / List of event recommendations |
+| `llm_provider_used` | string | 使用的LLM提供商 / LLM provider used (e.g., "openai", "anthropic") |
+| `cache_used` | boolean | 是否使用了缓存 / Whether cache was used |
+| `cache_age_hours` | number\|null | 缓存年龄（小时） / Cache age in hours |
+| `extracted_preferences` | object\|null | 提取的用户偏好 / Extracted user preferences (see below) |
+| `extraction_summary` | string\|null | 偏好摘要（格式化） / Formatted preference summary |
+| `usage_stats` | object\|null | 使用统计（匿名用户） / Usage statistics (for anonymous users) |
+| `trial_exceeded` | boolean | 是否超过试用限制 / Whether trial limit was exceeded |
+| `conversation_id` | string | 对话ID（用于继续对话） / Conversation ID (for continuing conversations) |
+
+#### 推荐项结构 / Recommendation Item Structure
+
+每个推荐项包含以下字段 / Each recommendation item contains:
+
+| 字段 / Field | 类型 / Type | 说明 / Description |
+|------|------|------|
+| `type` | string | 推荐类型，当前为 "event" / Recommendation type, currently "event" |
+| `data` | object | 事件数据对象 / Event data object (see below) |
+| `relevance_score` | number | 相关性分数 (0.0-1.0) / Relevance score (0.0-1.0) |
+| `explanation` | string | 推荐原因说明 / Explanation for the recommendation |
+
+#### 事件数据对象 / Event Data Object
+
+`recommendations[].data` 对象包含以下字段 / The `data` object contains:
+
+| 字段 / Field | 类型 / Type | 必需 / Required | 说明 / Description |
+|------|------|------|------|
+| `event_id` | string | 否 | 事件唯一标识符 / Unique event identifier |
+| `title` | string | 是 | 事件标题 / Event title |
+| `description` | string | 是 | 事件描述 / Event description |
+| `venue_name` | string | 是 | 场馆名称 / Venue name |
+| `venue_city` | string | 是 | 场馆所在城市 / Venue city |
+| `venue_country` | string | 否 | 场馆所在国家 / Venue country |
+| `start_datetime` | string | 是 | 开始时间 (ISO 8601格式) / Start datetime (ISO 8601 format) |
+| `end_datetime` | string | 否 | 结束时间 (ISO 8601格式) / End datetime (ISO 8601 format) |
+| `timezone` | string | 否 | 时区 / Timezone |
+| `organizer_name` | string | 否 | 组织者名称 / Organizer name |
+| `organizer_id` | string | 否 | 组织者ID / Organizer ID |
+| `is_free` | boolean | 是 | 是否免费 / Whether event is free |
+| `ticket_min_price` | string | 否 | 最低票价 / Minimum ticket price |
+| `ticket_max_price` | string | 否 | 最高票价 / Maximum ticket price |
+| `categories` | array | 否 | 事件分类数组 / Array of event categories |
+| `image_url` | string | 否 | 事件图片URL / Event image URL |
+| `event_url` | string | 否 | 事件详情页URL / Event detail page URL |
+| `source` | string | 是 | 数据来源 ("cached" 或 "realtime") / Data source ("cached" or "realtime") |
+| `latitude` | number | 否 | 场馆纬度 / Venue latitude |
+| `longitude` | number | 否 | 场馆经度 / Venue longitude |
+| `attendee_count` | number | 否 | 参加人数 / Number of attendees |
+| `rating` | number | 否 | 评分 / Rating |
+
+#### 用户偏好对象 / User Preferences Object
+
+`extracted_preferences` 对象包含以下字段 / The `extracted_preferences` object contains:
+
+| 字段 / Field | 类型 / Type | 说明 / Description |
+|------|------|------|
+| `location` | string\|null | 提取的位置信息 / Extracted location (e.g., "new york", "none") |
+| `date` | string\|null | 提取的日期信息 / Extracted date (e.g., "this weekend", "none") |
+| `time` | string\|null | 提取的时间信息 / Extracted time (e.g., "evening", "none") |
+| `event_type` | string\|null | 提取的事件类型 / Extracted event type (e.g., "music", "none") |
+
+**注意 / Note**: 如果某个字段未提取到，值为 `"none"` 或 `null` / If a field is not extracted, the value is `"none"` or `null`.
+
+#### 使用统计对象 / Usage Statistics Object
+
+`usage_stats` 对象（仅匿名用户）包含以下字段 / The `usage_stats` object (anonymous users only) contains:
+
+| 字段 / Field | 类型 / Type | 说明 / Description |
+|------|------|------|
+| `total_interactions` | number | 总交互次数 / Total number of interactions |
+| `remaining_interactions` | number | 剩余交互次数 / Remaining interactions |
+| `trial_limit` | number | 试用限制次数 / Trial limit count |
 
 #### 错误响应
 
@@ -205,7 +336,7 @@ import os
 
 # Configure API base URL
 # Development: http://localhost:8000
-# Production: https://your-domain.com (replace with your actual domain)
+# Production: https://lily.locomoco.top
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
 FIREBASE_TOKEN = "your_firebase_token_here"
 
@@ -245,7 +376,7 @@ const axios = require('axios');
 
 // Configure API base URL
 // Development: http://localhost:8000
-// Production: https://your-domain.com (replace with your actual domain)
+// Production: https://lily.locomoco.top
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8000';
 const FIREBASE_TOKEN = 'your_firebase_token_here';
 
@@ -290,9 +421,9 @@ curl -X POST http://localhost:8000/api/public/chat \
   }'
 ```
 
-**生产环境** (替换为您的实际域名):
+**生产环境 / Production**:
 ```bash
-curl -X POST https://your-domain.com/api/public/chat \
+curl -X POST https://lily.locomoco.top/api/public/chat \
   -H "Authorization: Bearer YOUR_FIREBASE_TOKEN_HERE" \
   -H "Content-Type: application/json" \
   -d '{
@@ -380,53 +511,72 @@ def retry_with_backoff(func, max_retries=3):
 | `API_RATE_LIMIT_MAX` | 速率限制最大请求数 | 10 |
 | `API_RATE_LIMIT_WINDOW` | 速率限制时间窗口（秒） | 60 |
 
-## 支持
+## 📚 更多资源 / Additional Resources
 
-如有问题或需要帮助，请参考：
-- 示例代码: [`../examples/`](../examples/)
-- 项目文档: 项目根目录的README.md
+**示例代码 / Example Code**: 
+- Python: [`../examples/python_example.py`](../examples/python_example.py)
+- JavaScript: [`../examples/javascript_example.js`](../examples/javascript_example.js)
+- cURL: [`../examples/curl_examples.sh`](../examples/curl_examples.sh)
 
-## 公网访问配置
+**项目文档 / Project Documentation**: 项目根目录的README.md / README.md in project root
 
-### 部署到生产环境
+## 💬 支持 / Support
 
-API已配置为支持公网访问。部署时需要：
+如有问题或需要帮助，请参考上述资源。  
+**English**: For questions or help, please refer to the resources above.
 
-1. **设置域名环境变量**:
+## 🌐 公网访问配置 / Production Deployment
+
+### 部署到生产环境 / Deploying to Production
+
+API已配置为支持公网访问。部署时需要：  
+**English**: The API is configured for public access. When deploying:
+
+1. **设置域名环境变量 / Set Domain Environment Variable**:
    ```bash
-   export DOMAIN_NAME=your-domain.com
+   export DOMAIN_NAME=lily.locomoco.top
    ```
+   > ✅ Production domain: `lily.locomoco.top`
 
-2. **配置CORS**: API会自动根据 `DOMAIN_NAME` 配置CORS，允许来自该域名的请求
+2. **配置CORS / Configure CORS**: API会自动根据 `DOMAIN_NAME` 配置CORS，允许来自该域名的请求  
+   **English**: API automatically configures CORS based on `DOMAIN_NAME` to allow requests from that domain
 
-3. **使用HTTPS**: 生产环境建议使用HTTPS，通过Nginx反向代理配置SSL证书
+3. **使用HTTPS / Use HTTPS**: 生产环境建议使用HTTPS，通过Nginx反向代理配置SSL证书  
+   **English**: Production should use HTTPS via Nginx reverse proxy with SSL certificate
 
-4. **防火墙配置**: 确保服务器开放必要端口（80, 443, 8000）
+4. **防火墙配置 / Firewall Configuration**: 确保服务器开放必要端口（80, 443, 8000）  
+   **English**: Ensure server opens necessary ports (80, 443, 8000)
 
-### 访问示例
+### 访问示例 / Access Example
 
-**生产环境调用**:
+**生产环境调用 / Production Call**:
 ```bash
-# 替换为您的实际域名
-curl -X POST https://your-domain.com/api/public/chat \
+curl -X POST https://lily.locomoco.top/api/public/chat \
   -H "Authorization: Bearer YOUR_FIREBASE_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"message": "Find events in New York"}'
 ```
 
-### 环境变量
+### 环境变量 / Environment Variables
 
-服务器端可通过以下环境变量配置：
+服务器端可通过以下环境变量配置：  
+**English**: Server-side configuration via environment variables:
 
-| 变量 | 说明 | 默认值 | 必需 |
+| 变量 / Variable | 说明 / Description | 默认值 / Default | 必需 / Required |
 |------|------|--------|------|
-| `DOMAIN_NAME` | 生产域名 | - | 是（生产环境） |
-| `API_RATE_LIMIT_MAX` | 速率限制最大请求数 | 10 | 否 |
-| `API_RATE_LIMIT_WINDOW` | 速率限制时间窗口（秒） | 60 | 否 |
+| `DOMAIN_NAME` | 生产域名 / Production domain | `lily.locomoco.top` | 是（生产环境）/ Yes (production) |
+| `API_RATE_LIMIT_MAX` | 速率限制最大请求数 / Max requests per window | 10 | 否 / No |
+| `API_RATE_LIMIT_WINDOW` | 速率限制时间窗口（秒）/ Time window (seconds) | 60 | 否 / No |
 
-## 版本信息
+## 📋 版本信息 / Version Information
 
-- API版本: 1.0.0
-- 最后更新: 2024-01-15
-- 公网访问: ✅ 已支持
+- **API版本 / API Version**: 1.0.0
+- **最后更新 / Last Updated**: 2024-01-15
+- **公网访问 / Public Access**: ✅ 已支持 / Supported
+- **认证方式 / Authentication**: Firebase Auth
+- **速率限制 / Rate Limiting**: ✅ 已实施 / Implemented
+
+---
+
+> 💡 **For API Consumers**: This documentation is designed for external developers integrating the Local Life Assistant API into their applications. Production API is available at `https://lily.locomoco.top`.
 
