@@ -25,6 +25,7 @@ from .extraction_service import ExtractionService, UserPreferences
 from .usage_tracker import UsageTracker
 from .conversation_storage import ConversationStorage
 from .user_manager import UserManager
+from .api.public.router import router as public_api_router
 
 # Load environment variables from .env file
 load_dotenv('../.env') or load_dotenv('.env') or load_dotenv('/app/.env')
@@ -163,6 +164,9 @@ logger.info("Conversations storage: Firestore")
 
 # Users are now stored in Firestore
 logger.info("Users storage: Firestore")
+
+# Include public API router
+app.include_router(public_api_router)
 
 # Routes
 @app.get("/health")
